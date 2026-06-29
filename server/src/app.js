@@ -18,6 +18,8 @@ app.get("/check", (_, res) => {
 	res.send("API running");
 });
 
+
+
 app.use(errorHandler);
 
 export default app;
