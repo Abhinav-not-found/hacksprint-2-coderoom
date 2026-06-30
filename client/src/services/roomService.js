@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8001/api/rooms";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export const createRoom = (payload) => {
 	return axios.post(`${API_BASE}/create`, payload);
