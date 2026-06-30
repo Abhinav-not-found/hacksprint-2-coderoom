@@ -10,7 +10,12 @@ const Sidebar = ({ participants, typingUsers }) => {
             className='flex items-center gap-2 rounded-md bg-[#2d2d2d] px-3 py-2'
           >
             <div className='h-2 w-2 rounded-full bg-green-500' />
-            <span>{p.name}</span>
+            <span className='flex-1'>{p.name}</span>
+            {p.isHost && (
+              <span className='rounded-full bg-blue-500/15 px-2 py-0.5 text-xs font-medium text-blue-300'>
+                Host
+              </span>
+            )}
           </div>
         ))}
       </div>

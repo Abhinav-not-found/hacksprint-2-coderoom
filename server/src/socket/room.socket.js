@@ -42,7 +42,14 @@ export async function joinRoom(io, socket, data) {
 
 		await room.save();
 		// Broadcast participants
-		io.to(roomCode).emit("participant-list", room.participants);
+		io.to(roomCode).emit(
+			"participant-list",
+			room.participants.map((participant) => ({
+				name: participant.name,
+				isHost:
+					participant.name.toLowerCase() === room.host.toLowerCase(),
+			})),
+		);
 
 		const latestDocument = documentCache.get(roomCode) ?? room.document;
 
@@ -58,4 +65,3 @@ export async function joinRoom(io, socket, data) {
 		});
 	}
 }
-

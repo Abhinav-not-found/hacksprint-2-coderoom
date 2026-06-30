@@ -1,6 +1,6 @@
 import Editor from "@monaco-editor/react"
 import { useState } from "react"
-import { useLocation, useParams } from "react-router"
+import { Navigate, useLocation, useParams } from "react-router"
 import RoomHeader from "../components/RoomHeader"
 import Sidebar from "../components/Sidebar"
 import { useRoomSocket } from "../hooks/useRoomSocket"
@@ -8,7 +8,8 @@ import { useRoomSocket } from "../hooks/useRoomSocket"
 const Room = () => {
   const { roomCode } = useParams()
   const location = useLocation()
-  const { name } = location.state || {}
+  const name =
+    location.state?.name || sessionStorage.getItem(`room:${roomCode}:name`)
 
   const [document, setDocument] = useState("")
 
@@ -17,6 +18,10 @@ const Room = () => {
     name,
     setDocument,
   })
+
+  if (!name) {
+    return <Navigate to='/' replace />
+  }
 
   const handleEditorChange = (value) => {
     const newValue = value ?? ""

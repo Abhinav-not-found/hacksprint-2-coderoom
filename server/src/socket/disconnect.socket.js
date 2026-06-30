@@ -3,14 +3,12 @@ import documentCache, { saveTimers } from "./document-cache.js";
 
 export async function disconnect(io, socket) {
 	try {
-		const room = await Room.findOne({
-			"participants.socketId": socket.id,
-		});
-		if (!room) return;
-
-		room.participants = room.participants.filter(
-			(participant) => participant.socketId !== socket.id,
+		const room = await Room.findOneAndUpdate(
+			{ "participants.socketId": socket.id },
+			{ $pull: { participants: { socketId: socket.id } } },
+			{ new: true },
 		);
+		if (!room) return;
 
 		setTimeout(async () => {
 			const updatedRoom = await Room.findById(room._id);
@@ -26,12 +24,17 @@ export async function disconnect(io, socket) {
 			}
 		}, 60000);
 
-		await room.save();
-		io.to(room.roomCode).emit("participant-list", room.participants);
+		io.to(room.roomCode).emit(
+			"participant-list",
+			room.participants.map((participant) => ({
+				name: participant.name,
+				isHost:
+					participant.name.toLowerCase() === room.host.toLowerCase(),
+			})),
+		);
 
 		console.log(`Disconnected: ${socket.id}`);
 	} catch (err) {
 		console.error(err);
 	}
 }
-

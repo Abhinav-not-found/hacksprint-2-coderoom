@@ -13,6 +13,7 @@ const allowedOrigins = [
 	process.env.CLIENT_URL_PROD,
 ].filter(Boolean);
 
+
 app.use(
 	cors({
 		origin: (origin, callback) => {
