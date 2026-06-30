@@ -1,54 +1,50 @@
 import mongoose from "mongoose";
 
 const participantSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-    },
-
-    socketId: {
-      type: String,
-    },
-
-    isHost: {
-      type: Boolean,
-      default: false,
-    },
-
-    isOnline: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  { _id: false }
+	{
+		name: {
+			type: String,
+			required: true,
+		},
+		socketId: {
+			type: String,
+			default: null,
+		},
+	},
+	{ _id: false },
 );
 
 const roomSchema = new mongoose.Schema(
-  {
-    roomCode: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
-      trim: true,
-    },
+	{
+		roomCode: {
+			type: String,
+			unique: true,
+			required: true,
+		},
 
-    hostId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
+		roomName: {
+			type: String,
+			default: "Untitled Room",
+		},
 
-    participants: [participantSchema],
+		host: {
+			type: String,
+			required: true,
+		},
 
-    documentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Document",
-    },
-  },
-  {
-    timestamps: true,
-  }
+		participants: {
+			type: [participantSchema],
+			default: [],
+		},
+
+		document: {
+			type: String,
+			default: "",
+		},
+	},
+	{
+		timestamps: true,
+	},
 );
 
-export const Room = mongoose.model("Room", roomSchema);
+export default mongoose.model("Room", roomSchema);

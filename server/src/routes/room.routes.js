@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { roomController } from "../controllers/room.controller.js";
+import * as controller from "../controllers/room.controller.js";
 
 const router = Router();
 
-router.post("/create", roomController.createRoom);
-
-router.post("/join", roomController.joinRoom);
+router.post("/create", controller.createRoom);
+router.post("/join", controller.joinRoom);
 
 export default router;

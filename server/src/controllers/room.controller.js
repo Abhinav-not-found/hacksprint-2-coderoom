@@ -1,33 +1,96 @@
-import { roomService } from "../services/room.service.js";
+import Room from "../models/room.model.js";
+import generateRoomCode from "../utils/generateRoomCode.js";
 
-class RoomController {
-  async createRoom(req, res, next) {
-    try {
-      const room = await roomService.createRoom(req.body);
+export const createRoom = async (req, res) => {
+	try {
+		const { host, roomName } = req.body;
 
-      res.status(201).json({
-        success: true,
-        message: "Room created successfully",
-        data: room,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+		if (!host) {
+			return res.status(400).json({
+				success: false,
+				message: "Host name is required",
+			});
+		}
 
-  async joinRoom(req, res, next) {
-    try {
-      const room = await roomService.joinRoom(req.body);
+		let roomCode;
 
-      res.status(200).json({
-        success: true,
-        message: "Joined room successfully",
-        data: room,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-}
+		while (true) {
+			roomCode = generateRoomCode();
+			const exists = await Room.findOne({ roomCode });
+			if (!exists) break;
+		}
 
-export const roomController = new RoomController();
+		const room = await Room.create({
+			roomCode,
+			roomName: roomName || "Untitled Room",
+			host,
+			participants: [
+				{
+					name: host,
+				},
+			],
+		});
+
+		res.status(201).json({
+			success: true,
+			room,
+		});
+	} catch (err) {
+		console.error(err);
+
+		res.status(500).json({
+			success: false,
+			message: "Internal Server Error",
+		});
+	}
+};
+
+export const joinRoom = async (req, res) => {
+	try {
+		const { roomCode, name } = req.body;
+
+		if (!roomCode || !name) {
+			return res.status(400).json({
+				success: false,
+				message: "Room code and name are required",
+			});
+		}
+
+		const room = await Room.findOne({ roomCode });
+
+		if (!room) {
+			return res.status(404).json({
+				success: false,
+				message: "Room not found",
+			});
+		}
+
+		const participantExists = room.participants.some(
+			(participant) => participant.name.toLowerCase() === name.toLowerCase(),
+		);
+
+		if (participantExists) {
+			return res.status(409).json({
+				success: false,
+				message: "Name already taken",
+			});
+		}
+
+		room.participants.push({
+			name,
+		});
+		await room.save();
+
+		return res.json({
+			success: true,
+			room,
+		});
+	} catch (err) {
+		console.error(err);
+
+		res.status(500).json({
+			success: false,
+			message: "Internal Server Error",
+		});
+	}
+};
