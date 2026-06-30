@@ -7,9 +7,22 @@ import { typingStart, typingStop } from "./typing.socket.js";
 let io;
 
 export function initializeSocket(server) {
+	const allowedOrigins = [
+		process.env.CLIENT_URL,
+		process.env.CLIENT_URL_PROD,
+	].filter(Boolean);
+
 	io = new Server(server, {
 		cors: {
-			origin: process.env.CLIENT_URL,
+			origin: (origin, callback) => {
+				if (!origin) return callback(null, true);
+
+				if (allowedOrigins.includes(origin)) {
+					return callback(null, true);
+				}
+
+				return callback(new Error("Not allowed by CORS"));
+			},
 			credentials: true,
 		},
 	});
