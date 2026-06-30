@@ -1,11 +1,17 @@
 # Team Name: AASync
 
 ## Members:
-- Abhinav Kumar
-- Abdul Ayub Ali
-- Sumit Kumar
+- Abhinav Kumar (Domain A)
+- Abdul Ayub Ali (Domain B)
+- Sumit Kumar (Domain C)
 
-## Instructions
+## Who owned mongodb persistence and why?
+- Abhinav kumar owned it. 
+
+## Conflict strategy
+- All changes are sent to the server as small updates (deltas). The server puts these updates in a queue so they are handled one by one in the correct order. It then applies each update to a single main version of the document stored on the server. This way, everyone sees the same final text even if multiple people are editing at the same time.
+
+## Instructions for Teammates
 - clone repository
 - Everyone will create branches using their own name. Example:
 ```
