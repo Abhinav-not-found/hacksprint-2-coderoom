@@ -9,6 +9,8 @@ export const useRoomSocket = ({ roomCode, name, setDocument }) => {
 	const typingTimeoutRef = useRef(null);
 
 	useEffect(() => {
+		if (!roomCode || !name) return;
+
 		socket.connect();
 
 		socket.emit("join-room", { roomCode, name });
@@ -40,6 +42,8 @@ export const useRoomSocket = ({ roomCode, name, setDocument }) => {
 	}, [roomCode, name, setDocument]);
 
 	const emitChange = (document, newValue) => {
+		if (!roomCode || !name) return;
+
 		const delta = createDelta(document, newValue ?? "");
 		if (!delta) return;
 

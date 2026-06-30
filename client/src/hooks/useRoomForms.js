@@ -35,6 +35,10 @@ export const useRoomForms = () => {
 			const { data } = await createRoom(createForm);
 
 			if (data.success) {
+				sessionStorage.setItem(
+					`room:${data.room.roomCode}:name`,
+					createForm.host,
+				);
 				navigate(`/room/${data.room.roomCode}`, {
 					state: { name: createForm.host },
 				});
@@ -49,6 +53,10 @@ export const useRoomForms = () => {
 			const { data } = await joinRoom(joinForm);
 
 			if (data.success) {
+				sessionStorage.setItem(
+					`room:${data.room.roomCode}:name`,
+					joinForm.name,
+				);
 				navigate(`/room/${data.room.roomCode}`, {
 					state: { name: joinForm.name },
 				});

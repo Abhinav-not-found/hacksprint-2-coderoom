@@ -1,31 +1,57 @@
 import { Server } from "socket.io";
-import config from "../config/config.js";
+import { disconnect } from "./disconnect.socket.js";
+import { documentChange } from "./editor.socket.js";
+import { joinRoom } from "./room.socket.js";
+import { typingStart, typingStop } from "./typing.socket.js";
 
 let io;
 
-export const initSocket = (server) => {
-  io = new Server(server, {
-    cors: {
-      origin: config.CLIENT_URL,
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-  });
+export function initializeSocket(server) {
+	const allowedOrigins = [
+		process.env.CLIENT_URL,
+		process.env.CLIENT_URL_PROD,
+	].filter(Boolean);
 
-  io.on("connection", (socket) => {
-    console.log(`User connected with ID: ${socket.id}`);
+	io = new Server(server, {
+		cors: {
+			origin: (origin, callback) => {
+				if (!origin) return callback(null, true);
 
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
-    });
-  });
+				if (allowedOrigins.includes(origin)) {
+					return callback(null, true);
+				}
 
-  return io;
-};
+				return callback(new Error("Not allowed by CORS"));
+			},
+			credentials: true,
+		},
+	});
 
-export const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.io is not initialized!");
-  }
-  return io;
-};
+	io.on("connection", (socket) => {
+		console.log(`Connected: ${socket.id}`);
+
+		socket.on("join-room", (data) => {
+			joinRoom(io, socket, data);
+		});
+
+		socket.on("document-change", (data) => {
+			documentChange(io, socket, data);
+		});
+
+		socket.on("typing-start", (data) => {
+			typingStart(io, socket, data);
+		});
+
+		socket.on("typing-stop", (data) => {
+			typingStop(io, socket, data);
+		});
+
+		socket.on("disconnect", () => {
+			disconnect(io, socket);
+		});
+	});
+}
+
+export function getIO() {
+	return io;
+}
